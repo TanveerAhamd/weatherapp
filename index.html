@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 330px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 8px;
+      width: 70%;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 8px 12px;
+      margin-left: 5px;
+      background-color: #4facfe;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00f2fe;
+    }
+
+    .weather-info img {
+      width: 100px;
+      margin: 10px 0;
+    }
+
+    .weather-info p {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+
+    #error {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🌦 Weather App</h2>
+    <div class="search-box">
+      <input type="text" id="city" placeholder="Enter city name" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div class="weather-info" id="weatherInfo">
+      <h3 id="cityName"></h3>
+      <img id="icon" alt="" />
+      <p id="description"></p>
+      <p id="temp"></p>
+      <p id="humidity"></p>
+      <p id="wind"></p>
+      <p id="error"></p>
+    </div>
+  </div>
+
+  <script>
+    const apiBase =
+      "https://api.weatherapi.com/v1/current.json?key=1fb3ac4726ae4d629ef113534251211&q=";
+
+    const searchBtn = document.getElementById("searchBtn");
+    const cityInput = document.getElementById("city");
+
+    searchBtn.addEventListener("click", () => {
+      const city = cityInput.value.trim();
+      if (city) {
+        getWeather(city);
+      } else {
+        alert("Please enter a city name!");
+      }
+    });
+
+    async function getWeather(city) {
+      try {
+        const response = await fetch(`${apiBase}${city}&aqi=yes`);
+        const data = await response.json();
+
+        if (data.error) {
+          document.getElementById("error").textContent = "❌ City not found!";
+          document.getElementById("weatherInfo").style.display = "block";
+          return;
+        }
+
+        document.getElementById("error").textContent = "";
+        document.getElementById("cityName").textContent = `${data.location.name}, ${data.location.country}`;
+        document.getElementById("temp").textContent = `🌡 Temperature: ${data.current.temp_c} °C`;
+        document.getElementById("humidity").textContent = `💧 Humidity: ${data.current.humidity}%`;
+        document.getElementById("wind").textContent = `💨 Wind: ${data.current.wind_kph} km/h`;
+        document.getElementById("description").textContent = `🌤 ${data.current.condition.text}`;
+        document.getElementById("icon").src = `https:${data.current.condition.icon}`;
+      } catch (error) {
+        document.getElementById("error").textContent = "⚠️ Error fetching weather data!";
+        console.error(error);
+      }
+    }
+
+    // Show Lodhran weather on load
+    window.onload = () => getWeather("Lodhran");
+  </script>
+</body>
+</html>
